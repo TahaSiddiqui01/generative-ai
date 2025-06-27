@@ -1,6 +1,5 @@
 from openai import OpenAI
 import json
-import os
 client = OpenAI()
 tools = [{
     "type": "function",
@@ -31,8 +30,16 @@ def best_candidate(programming_languages):
         return f"You are eligible for the job because you know: {', '.join(matched)}."
     return "You are not eligible for the job based on your programming languages."
 
-
-input_messages = [{"role": "user", "content": "My programming languages are GO and C++. Can you check if I am eligible for the job?"}]
+input_messages = [
+    {
+        "role": "system",
+        "content": "Answer like a TV reporter. You are a job eligibility checker that can determine if a candidate is eligible for a job based on their programming languages."
+    },
+    {
+        "role": "user",
+        "content": "I am looking for a job that requires knowledge of Python, Go, and C++. Can you help me check if I am eligible?"
+    }
+]
 
 response = client.responses.create(
     model="gpt-3.5-turbo-0125",
@@ -40,7 +47,6 @@ response = client.responses.create(
     tools=tools,
 )
 
-print("Response: ", response.output)
 
 tool_call = response.output[0]
 args = json.loads(tool_call.arguments)
